@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity 0.8.13;
+
+contract Perpustakaan {
+    struct Buku {
+        string isbn;
+        string judul;
+        uint tahunDibuat;
+        string penulis;
+    }
+
+    mapping(string => Buku) private bukuData;
+
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "Hanya admin yang dapat mengakses fungsi ini");
+        _;
+    }
+
+    address public admin;
+
+    constructor () {
+        admin = msg.sender;
+    }
+
+    function tambahBuku(string memory isbn, string memory judul, uint tahunDibuat, string memory penulis) public onlyAdmin {
+        require(bytes (bukuData[isbn].isbn).length == 0, "Buku dengan ISBN tersebut sudah ada");
+
+        Buku memory bukuBaru = Buku(isbn, judul, tahunDibuat, penulis);
+        bukuData[isbn] = bukuBaru;
+    }
+
+    function updateBuku(string memory isbn, string memory judul, uint tahunDibuat, string memory penulis) public onlyAdmin {
+        require(bytes (bukuData[isbn].isbn).length != 0, "Buku dengan ISBN tersebut tidak ditemukan");
+
+        Buku storage buku = bukuData[isbn];
+        buku.judul = judul;
+        buku.tahunDibuat = tahunDibuat;
+        buku.penulis = penulis;
+    }
+
+    function hapusBuku (string memory isbn) public onlyAdmin {
+        require(bytes(bukuData[isbn].isbn).length != 0, "Buku dengan ISBN tersebut tidak ditemukan");
+        delete bukuData[isbn];
+    }
+
+    function getDataBuku(string memory isbn) public view returns (string memory, string memory, uint, string memory) {
+        require(bytes(bukuData[isbn].isbn).length != 0, "Buku dengan ISBN tersebut tidak ditemukan");
+
+        Buku memory buku = bukuData[isbn];
+        return (buku.isbn, buku.judul, buku.tahunDibuat, buku.penulis);
+    }
+}
