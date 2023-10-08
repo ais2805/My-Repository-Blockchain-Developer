@@ -1,0 +1,16 @@
+const { ethers, upgrades } = require("hardhat");
+
+async function main() {
+  const Library = await ethers.getContractFactory("Library");
+  console.log("Deploying Library...");
+  const library = await upgrades.deployProxy(Library, []);
+  await library.deployed();
+  console.log("Library deployed to:", library.address);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch(error => {
+    console.error(error);
+    process.exit(1);
+  });
